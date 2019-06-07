@@ -11,7 +11,9 @@ import Foundation
 public protocol QuestionProtocol {
     init?(fields: [String] )
     var description: String {get}
+    var question: String {get}
     var solution: String {get}
+    var explainAnswer: String {get}
     var answered: Int {get set}
     var qa: String {get}
     var qb: String {get}

@@ -30,33 +30,38 @@ let q3 = Question(name: "ThirdQ", question: "This is the best quiz ever", qa: "Y
 
 class SQLiteManagerMock: SQLiteMock {
 
+
+    
+    var questions = [QuestionProtocol]()
+
     
     // provide the quizzes from the repos that you have, please
 
-    func provideQuizzes<T>(with type: T.Type, withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Quiz<QuestionProtocol>], Error>) -> Void) where T : QuestionProtocol {
+    func provideQuizzes<T>(with type: T.Type, withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Quiz<T>], Error>) -> Void) where T : QuestionProtocol {
+        
+        var typeQs = [T]()
+        
         if questions.count == 0 {
             questions.append(q1)
             questions.append(q2)
+            
+
         }
         
-        var anyquizzes = [Quiz<QuestionProtocol>]()
+        typeQs.append(q1 as! T)
+        typeQs.append(q2 as! T)
         
-//        let qs = [QuestionProtocol]()
-        
-        let quiz = Quiz(name: "TestQuiz", questions:questions)
-        
-        anyquizzes.append(quiz)
-        
+
+        let quiz = Quiz(name: "TestQuiz", questions: typeQs)
+
+
         if !shouldFail {
-            completion(.success(  anyquizzes  ))
+            completion(.success(  [quiz]  ))
         } else {
             let er = NSError(domain: "Could not provide quizzes", code: -1009, userInfo: nil)
             completion(.failure(er))
         }
     }
-    
-    
-    var questions = [QuestionProtocol]()
     
     func setQuestions(questions: [QuestionProtocol]) {
         self.questions = questions

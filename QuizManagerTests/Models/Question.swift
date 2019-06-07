@@ -41,7 +41,7 @@ public struct Question: QuestionProtocol, Codable, Equatable, CustomStringConver
     }
     
     let name: String
-    let question: String // question posed
+    public let question: String // question posed
     public let qa: String
     public let qb: String
     public let qc: String
@@ -52,7 +52,7 @@ public struct Question: QuestionProtocol, Codable, Equatable, CustomStringConver
     let difficulty: String
     let examboard: String
     let tip: String
-    let explainAnswer: String
+    public let explainAnswer: String
     let qSimilar: String
     let wrongOne: String
     let wrongTwo: String

@@ -10,7 +10,7 @@ import Foundation
 import SQLite3
 
 public protocol RepositoryProtocol{
-    func provideQuizzes<T: QuestionProtocol>(with type: T.Type,withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Quiz<QuestionProtocol>], Error>) -> Void)
+    func provideQuizzes<T: QuestionProtocol>(with type: T.Type,withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Quiz<T>], Error>) -> Void)
 }
 
 public class SQLiteManager {
@@ -19,13 +19,17 @@ public class SQLiteManager {
     var quizManager: QuizManager?
     var fetching = false
     private var quizzes = [Quiz<QuestionProtocol>]()
+//    private var quizzes = [Quiz<T>]()
+//    private var quizzes = [Quiz<Any>]()
+//    private var anyquizzes = [Quiz<QuestionProtocol>]()
     
-    private var anyquizzes = [Quiz<QuestionProtocol>]()
-    
-    public func provideQuizzes<T: QuestionProtocol>(with type: T.Type,withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Quiz<QuestionProtocol>], Error>) -> Void)
+    public func provideQuizzes<T: QuestionProtocol>(with type: T.Type,withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Quiz<T>], Error>) -> Void)
     {
         guard fetching == false else {return}
         fetching = true
+        
+        var currentQuiz = [Quiz<T>]()
+
         for dbName in dbases {
             let dbPath: String?
             if withdbpathfunc == nil {
@@ -37,9 +41,13 @@ public class SQLiteManager {
             
             let qs = readQuestionsFromDB(with: type, db!)
             // create a new Quiz, and add to the array of quizzes
-            anyquizzes.append(Quiz(name: dbName, questions: qs))
+//            anyquizzes.append(Quiz(name: dbName, questions: qs))
+            currentQuiz.append(Quiz(name: dbName, questions: qs))
         }
-        completion(.success(anyquizzes))
+        
+        
+        
+        completion(.success(currentQuiz))
         fetching = false
     }
 

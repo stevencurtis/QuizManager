@@ -9,21 +9,27 @@
 import Foundation
 
 public protocol QuizManagerProtocol {
-    func getAllQs<T: QuestionProtocol>(with type: T.Type, _ forDatabase: String?, withCompletionHandler completion: @escaping (Result<[QuestionProtocol], Error>) -> Void)
-    func getNextQFromSet() -> (question: QuestionProtocol, answers: [String])?
-    func answeredQFromSet(withAnswer answers: [Int], recordAnswer: Bool?,withCompletionHandler completion: @escaping (Result<(isCorrect: Bool, isLast: Bool), Error>) -> Void)
-    func getQuestionSetProgress() -> (question: [QuestionProtocol], correctAnswerIndex: [String], givenAnswers: [String], givenAnswerIndex: [String])?
-    func getQuestionSetStats() -> (numberOfQs: Int, answered: Int, totalCorrect: Int, totalWrong: Int)?
-    func setQuestionsRandomly<T: QuestionProtocol>(with type: T.Type, numberQuestions no: Int, shufflefunction: (([(question: QuestionProtocol, answerGiven: Int?)]) -> (() -> [(question: QuestionProtocol, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void)
+    func getAllQs<T: QuestionProtocol>(with type: T.Type, _ forDatabase: String?, withCompletionHandler completion: @escaping (Result<[T], Error>) -> Void)
+    func getNextQFromSet<T: QuestionProtocol>(with type: T.Type) -> (question: T, answers: [String])?
+    func answeredQFromSet<T: QuestionProtocol>(with type: T.Type, withAnswer answers: [Int], recordAnswer: Bool?, withCompletionHandler completion: @escaping (Result<(isCorrect: Bool, isLast: Bool), Error>) -> Void)
+    func getQuestionSetProgress<T: QuestionProtocol>(with type: T.Type) -> (question: [QuestionProtocol], correctAnswerIndex: [String], givenAnswers: [String], givenAnswerIndex: [String])?
+    func getQuestionSetStats<T: QuestionProtocol> (with type: T.Type) -> (numberOfQs: Int, answered: Int, totalCorrect: Int, totalWrong: Int)?
+    func setQuestionsRandomly<T>(with type: T.Type, numberQuestions no: Int, shufflefunction: (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void) where T : QuestionProtocol
     func clearQuestionSet()
-    func getCurrentQuestion() -> QuestionProtocol?
+    func getCurrentQuestion<T: QuestionProtocol>(with type: T.Type) -> T?
 }
 
 public class QuizManager {
     
-    private var quizzes = [Quiz<QuestionProtocol>]()
-    
+    // Chosen as <Any> because storing QuestionProtocol does not allow all the fields to be stored
+    // <T> is not possible and therefore we store it as "Any"
+    private var anyquizzes = [Quiz<Any>]()
     var repos = [RepositoryProtocol]()
+    
+    /// Current set of questions. question and answer given
+    private var questionSet : [(question: Any, answerGiven: Int?)]?
+    
+    private var currentQuestion : QuestionProtocol?
     
     public init(repo: RepositoryProtocol? = nil) {
         if let repo = repo {
@@ -38,30 +44,31 @@ public class QuizManager {
         }
     }
     
-    /// Current set of questions. question and answer given
-    private var questionSet : [(question: QuestionProtocol, answerGiven: Int?)]?
-    
-    private var currentQuestion : QuestionProtocol?
-    
-    public func getCurrentQuestion() -> QuestionProtocol? {
+    public func getCurrentQuestion<T: QuestionProtocol>(with type: T.Type) -> T? {
         if let currentQuestion = currentQuestion {
-            return currentQuestion
+            return currentQuestion as? T
         }
-        return getNextQFromSet()?.question
+        return getNextQFromSet(with: type)?.question
     }
     
     public func clearQuestionSet() {
         if var _ = questionSet {
-         questionSet!.removeAll()
+            questionSet!.removeAll()
         }
     }
-
+    
     /// should be able to get all Qs for a specific quiz. Quizzes guarentee to have questions
     // TODO: Name the databases
-    public func getAllQs<T: QuestionProtocol>(with type: T.Type, _ forDatabase: String? = nil, withCompletionHandler completion: @escaping (Result<[QuestionProtocol], Error>) -> Void) {
-    
-        if quizzes.count == repos.count {
-            completion(.success( quizzes.map{$0.getQuestions()}.flatMap{ $0 } ) )
+    public func getAllQs<T: QuestionProtocol>(with type: T.Type, _ forDatabase: String? = nil, withCompletionHandler completion: @escaping (Result<[T], Error>) -> Void) {
+        
+        if anyquizzes.count == repos.count {
+            if let allQs = anyquizzes.first!.getQuestions() as? [T]
+            {
+                completion(.success( allQs ) )
+                //completion(.success( quizzes.map{$0.getQuestions()}.flatMap{ $0 } ) )
+            }
+            
+            let error = NSError(domain:"", code:-2000, userInfo:[ NSLocalizedDescriptionKey: "Unknown error"]) as Error; completion(.failure(error))
             return
         }
         
@@ -70,48 +77,62 @@ public class QuizManager {
         // this will add more quizzes into the array
         initializeQuizzes(with: type, withCompletionHandler: {result in
             switch result {
-            case .failure(let error): fatalError(error.localizedDescription)
-            case .success(let result): self.quizzes = result; completion(.success( result.map{$0.getQuestions()}.flatMap{ $0 } ) )
+            case .failure(let error): completion(.failure(error) )
+            case .success(let result):
+                var qs = [T]()
+                for res in result {
+                    qs += res.getQuestions()
+                }
+                self.anyquizzes.append( Quiz(name: "TestQuiz", questions: qs)  )
+                completion(.success( result.map{$0.getQuestions()}.flatMap{ $0 } ) )
             }
         })
     }
     
     /// returns n questions from the total questions
-    private func nQuestions(n: Int) -> [QuestionProtocol]? {
-        let totalqs = quizzes.map{$0.getQuestions()}.flatMap{ $0 }
+    private func nQuestions<T: QuestionProtocol>(with type: T.Type, n: Int) -> [QuestionProtocol]? {
+        var totalqs = [Any]()
+        for res in anyquizzes {
+            if let castRes = res.getQuestions() as? [T]
+            { totalqs += castRes.compactMap { $0 } }
+        }
+        
         guard n <= totalqs.count else { return nil }
         var timesAnswered = 0
         var qs = [QuestionProtocol]()
         while qs.count < n {
-            qs += totalqs.filter{$0.answered == timesAnswered}.prefix(n)
+            let newQ = Array(totalqs.filter{($0 as? T)?.answered == timesAnswered}.prefix(n)) as! [T]
+            qs += newQ
             timesAnswered += 1
         }
         return qs
     }
     
     // return the next question from the current question set
-    public func getNextQFromSet() -> (question: QuestionProtocol, answers: [String])? {
+    //    public func getNextQFromSet() -> (question: QuestionProtocol, answers: [String])? {
+    public func getNextQFromSet<T: QuestionProtocol>(with type: T.Type) -> (question: T, answers: [String])? {
+        
         guard let questionSet = questionSet else { return nil }
-
+        
         for q in questionSet.enumerated() {
             // ignore the "temporary" answerGiven
             // TODO: consider how we will store the temporary answers
             if q.element.answerGiven == nil {
-                currentQuestion = q.element.question
-                let question = q.element.question
-                let answers = [question.qa, question.qb, question.qc, question.qd]
-                return (q.element.question, answers)
+                if let question = q.element.question as? T {
+                    currentQuestion = question
+                    let answers = [question.qa, question.qb, question.qc, question.qd]
+                    return (question, answers)
+                }
             }
         }
         return nil
     }
     
-
-    // this can only be called ONCE for each question!! - so needs a check
     
+    // this can only be called ONCE for each question!! - so needs a check
     // TODO: Get this to work properly for multiple answers: need to know the format of this that I previously used in the databases
     /// answer the currently presented question
-    public func answeredQFromSet(withAnswer answers: [Int], recordAnswer: Bool? = true, withCompletionHandler completion: @escaping (Result<(isCorrect: Bool, isLast: Bool), Error>) -> Void) {
+    public func answeredQFromSet<T: QuestionProtocol>(with type: T.Type, withAnswer answers: [Int], recordAnswer: Bool? = true, withCompletionHandler completion: @escaping (Result<(isCorrect: Bool, isLast: Bool), Error>) -> Void) {
         var last = false
         let answer = answers[0]
         guard questionSet != nil else { return completion(.failure (NSError(domain: "No question to be answered", code: -1, userInfo: nil)) ) }
@@ -129,8 +150,8 @@ public class QuizManager {
                     // make it negative so we can then "temporarily" store the answer
                     questionSet![q.offset].answerGiven = -abs(answer + 1)
                 }
-                
-                if ( (answer + 1) == Int(questionSet![q.offset].question.solution)!) {
+                guard let questionSet = questionSet?[q.offset] as? T else {return}
+                if ( (answer + 1) == Int(questionSet.solution)!) {
                     completion(.success( (true, last)))
                 } else {
                     completion(.success( (false, last)))
@@ -141,9 +162,12 @@ public class QuizManager {
     }
     
     // questions are set from the interface produce randomquestions
-    private func setQuestionSet(_ no: Int, shufflefunction : (([(question: QuestionProtocol, answerGiven: Int?)]) -> (() -> [(question: QuestionProtocol, answerGiven: Int?)])) = Array.shuffled) {
-        if let randomQs = nQuestions(n: no) {
-            questionSet = shufflefunction( Array( zip(randomQs, Array(repeating: nil, count: randomQs.count) ) ) ) ()
+    private func setQuestionSet<T: QuestionProtocol>(with type: T.Type,_ no: Int, shufflefunction : (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)])) = Array.shuffled) {
+        if let randomQs = nQuestions(with: type, n: no) {
+            let number = randomQs.count
+            let firstPart = randomQs as [Any]
+            let secondPart = Array<Int?>(repeating: nil, count: number )
+            questionSet = shufflefunction( Array( zip( firstPart, secondPart) ) ) ()
         }
     }
     
@@ -151,37 +175,41 @@ public class QuizManager {
     // correctAnswerIndex are the Srings of the index of the correct answers
     // givenAnswers are the Strings of the Index of the user given answers
     // returns 1-indexed arrays
-    public func getQuestionSetProgress() -> (question: [QuestionProtocol], correctAnswerIndex: [String], givenAnswers: [String], givenAnswerIndex: [String])? {
+    public func getQuestionSetProgress<T: QuestionProtocol>(with type: T.Type) -> (question: [QuestionProtocol], correctAnswerIndex: [String], givenAnswers: [String], givenAnswerIndex: [String])? {
         guard questionSet != nil && questionSet!.count > 0 else {return nil}
-        
-        let correctans = questionSet!.map{ $0.question.solution }
+        let correctans = questionSet!.map{ ($0.question as! T).solution }
         var correctAnswers = [String]()
         var givenAnswersIndex = [String]()
         for q in questionSet!.enumerated() {
-            let answers = [q.element.question.qa, q.element.question.qb, q.element.question.qc, q.element.question.qd]
-            correctAnswers.append(answers[q.element.question.answered])
-            if let answerGiven = q.element.answerGiven {
-                givenAnswersIndex.append( String( abs( answerGiven) ) )
+            if let question = q.element.question as? T {
+                let answers = [(question).qa, (question).qb, (question).qc, (question).qd]
+                correctAnswers.append(answers[(q.element.question as! T).answered])
+                if let answerGiven = q.element.answerGiven {
+                    givenAnswersIndex.append( String( abs( answerGiven) ) )
+                }
             }
         }
-        return ( questionSet!.map{ $0.question } ,correctans,correctAnswers,givenAnswersIndex)
+        return ( questionSet!.map{ $0.question as! T } ,correctans,correctAnswers,givenAnswersIndex)
     }
-
     
-    public func getQuestionSetStats() -> (numberOfQs: Int, answered: Int, totalCorrect: Int, totalWrong: Int)? {
+    
+    public func getQuestionSetStats<T: QuestionProtocol> (with type: T.Type) -> (numberOfQs: Int, answered: Int, totalCorrect: Int, totalWrong: Int)? {
         guard questionSet != nil && questionSet!.count > 0 else {return nil}
         let number = questionSet!.count
         let answered = questionSet!.filter{ $0.answerGiven != nil && $0.answerGiven ?? 0 >= 0 }.count
-        let correct = Array ( zip(questionSet!.map{ Int( $0.question.solution) }, questionSet!.map{ $0.answerGiven }) )
+        let correct: [(Int?, Int?)]
+        correct = Array ( zip(questionSet!.map{ Int( ($0.question as? T)?.solution ?? "") }, questionSet!.map{ $0.answerGiven }) )
         let correctAnswers = correct.filter{ $0.0 == ( ($0.1 ?? 10) + 1)}.count
         let wrong = number - correctAnswers
         return (numberOfQs: number, answered: answered, totalCorrect: correctAnswers, totalWrong: wrong)
     }
     
     // Set up the questionset quiz with random questions
-    public func setQuestionsRandomly<T: QuestionProtocol> (with type: T.Type, numberQuestions no: Int = 5, shufflefunction: (([(question: QuestionProtocol, answerGiven: Int?)]) -> (() -> [(question: QuestionProtocol, answerGiven: Int?)]))? = Array.shuffled, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void) {
-        if quizzes.count == repos.count {
-            setQuestionSet(no, shufflefunction: shufflefunction!)
+    
+    public func setQuestionsRandomly<T>(with type: T.Type, numberQuestions no: Int, shufflefunction: (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void) where T : QuestionProtocol {
+        
+        if anyquizzes.count == repos.count {
+            setQuestionSet(with: type, no, shufflefunction: shufflefunction!)
             completion(.success( true ) )
             return
         }
@@ -190,9 +218,10 @@ public class QuizManager {
         // this will add more quizzes into the array
         initializeQuizzes(with: type, withCompletionHandler: {result in
             switch result {
-            case .failure(let error): fatalError(error.localizedDescription)
+            case .failure(let error):
+                completion(.failure(error) )
             case .success:
-                self.setQuestionSet(no, shufflefunction: shufflefunction!)
+                self.setQuestionSet(with: type, no, shufflefunction: shufflefunction!)
                 if self.questionSet == nil || self.questionSet!.count > no {
                     completion(.failure(NSError(domain: "Insufficient questions", code: -1, userInfo: nil)) )
                 } else {
@@ -202,7 +231,7 @@ public class QuizManager {
         })
     }
     
-    public func initializeQuizzes<T: QuestionProtocol>(with type: T.Type, withCompletionHandler completion: ((Result<[Quiz<QuestionProtocol>], Error>) -> Void)?)  {
+    public func initializeQuizzes<T: QuestionProtocol>(with type: T.Type, withCompletionHandler completion: ((Result<[Quiz<T>], Error>) -> Void)?)  {
         for repo in repos {
             repo.provideQuizzes(with: type, withdbpathfunc: nil, withCompletionHandler: {result in
                 switch result {
@@ -211,14 +240,23 @@ public class QuizManager {
                         completion(.failure(error) )
                     }
                 case .success(let result):
-                    self.quizzes += result;
+                    
+                    var qs = [T]()
+                    for res in result {
+                        qs += res.getQuestions()
+                    }
+                    self.anyquizzes.append( Quiz(name: "Quiz", questions: qs)  )
+                    
                     if let completion = completion {
-                         completion(.success(self.quizzes))
+                        completion(.success(result))
                     }
                 }
             })
         }
     }
+    
 }
 
-extension QuizManager : QuizManagerProtocol {}
+
+
+extension QuizManager : QuizManagerProtocol { }

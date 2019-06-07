@@ -8,29 +8,20 @@
 
 import Foundation
 
-//public protocol QMProtocol {
-//    func getAllQs<T: QuestionProtocol>(with type: T.Type, _ forDatabase: String?, withCompletionHandler completion: @escaping (Result<[QuestionProtocol], Error>) -> Void)
-//    func getNextQFromSet() -> (question: QuestionProtocol, answers: [String])?
-//    func answeredQFromSet(withAnswer answers: [Int], recordAnswer: Bool?,withCompletionHandler completion: @escaping (Result<(isCorrect: Bool, isLast: Bool), Error>) -> Void)
-//    func getQuestionSetProgress() -> (question: [QuestionProtocol], correctAnswerIndex: [String], givenAnswers: [String], givenAnswerIndex: [String])?
-//    func getQuestionSetStats() -> (numberOfQs: Int, answered: Int, totalCorrect: Int, totalWrong: Int)?
-//    func setQuestionsRandomly<T: QuestionProtocol>(with type: T.Type, numberQuestions no: Int, shufflefunction: (([(question: QuestionProtocol, answerGiven: Int?)]) -> (() -> [(question: QuestionProtocol, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void)
-//    func clearQuestionSet()
-//    func getCurrentQuestion() -> QuestionProtocol?
-//}
-
 public protocol GameManagerProtocol {
     func switchAnswerer()
     func startGame<T: QuestionProtocol>(with type: T.Type, players: Int, withCompletionHandler completion: @escaping (Result<(question: QuestionProtocol, answers: [String])?, Error>) -> Void)
-    func nextQ() -> QuestionProtocol?
-    func currentQ() -> QuestionProtocol?
+    
+    func nextQ<T: QuestionProtocol>(with type: T.Type) -> QuestionProtocol?
+    func currentQ<T: QuestionProtocol>(with type: T.Type)  -> QuestionProtocol
+    
     func rollDice(randFuncDie1: ((ClosedRange<Int>) -> Int), randFuncDie2: ((ClosedRange<Int>) -> Int)) -> (dice1: Int, dice2: Int, losePointsTurn: Bool, losePointsGame: Bool)
     func getButtonStatus() -> (ButtonStatus)
     func getScores () -> (GameScores)
     func getCurrentPlayer() -> (Int)
     func getNumberPlayers() -> (Int)
     func scores() -> (GameScores)
-    func answer(_ answers: [Int], withCompletionHandler completion: @escaping (Result<(scores: GameScores, correct: Bool), Error>) -> Void)
+    func answer<T: QuestionProtocol>(with type: T.Type,_ answers: [Int], withCompletionHandler completion: @escaping (Result<(scores: GameScores, correct: Bool), Error>) -> Void)
 }
 
 public struct GameScores: Equatable {
@@ -126,19 +117,18 @@ public class GameManager {
     // Roll the dice. Answer the questions - and get points if you answer the question correctly.
     // Roll a 1 - lose your points for that turn. Roll a double 1 - lose all your points.
     
-    public func nextQ() -> QuestionProtocol? {
-       return quizMngr.getNextQFromSet()?.question
+    public func nextQ<T: QuestionProtocol>(with type: T.Type) -> QuestionProtocol? {
+        return quizMngr.getNextQFromSet(with: type) as? QuestionProtocol
     }
     
-    public func currentQ() -> QuestionProtocol? {
-        return quizMngr.getCurrentQuestion()
+    public func currentQ<T: QuestionProtocol>(with type: T.Type)  -> QuestionProtocol {
+        return (quizMngr!.getCurrentQuestion(with: type))!
     }
     
     public func scores() -> (GameScores) {
         return GameScores(player1ScoreTurn: player1ScoreTurn, player2ScoreTurn: player2ScoreTurn, player1ScoreGame: player1ScoreGame, player2ScoreGame: player2ScoreGame)
     }
     
-    // func getButtonStatus() -> (rollEnabled: Bool, answerEnabled: Bool, passEnabled: Bool) {
     public func getButtonStatus() -> (ButtonStatus) {
         return ButtonStatus(rollEnabled: rollEnabled, answerEnabled: answerEnabled, passEnabled: passEnabled)
     }
@@ -154,8 +144,18 @@ public class GameManager {
         numberPlayers = players
         quizMngr.setQuestionsRandomly(with: type, numberQuestions: 100, shufflefunction: Array.shuffled, withCompletionHandler: {result in
             switch result {
-            case .failure(let error): completion(.failure(error))
-            case .success: completion(.success(self.quizMngr.getNextQFromSet()))
+            case .failure(let error):
+                completion(.failure(error))
+            case .success:
+                if let test = self.quizMngr.getNextQFromSet(with: type)?.question
+                {
+                    completion(.success( (test, [test.solution] )  ))
+                }
+                else
+                {
+                    let error = NSError(domain:"", code:-2000, userInfo:[ NSLocalizedDescriptionKey: "Unknown error"]) as Error; completion(.failure(error))
+                    completion(.failure(error))
+                }
             }
         })
 
@@ -195,11 +195,13 @@ public class GameManager {
     }
     
     /// TODO: get it to work for an array of answers
-    public func answer(_ answers: [Int], withCompletionHandler completion: @escaping (Result<(scores: GameScores, correct: Bool), Error>) -> Void) {
-        quizMngr.answeredQFromSet(withAnswer: answers, recordAnswer: false, withCompletionHandler: {
+    public func answer<T: QuestionProtocol>(with type: T.Type,_ answers: [Int], withCompletionHandler completion: @escaping (Result<(scores: GameScores, correct: Bool), Error>) -> Void) {
+        
+        quizMngr.answeredQFromSet(with: type, withAnswer: answers, recordAnswer: false, withCompletionHandler: {
             result in
             switch result {
-            case .failure: print ("error")
+            case .failure(let error):
+                completion(.failure(error))
             case .success(let result):
                 if result.isCorrect {
                     self.addToTurnScore()

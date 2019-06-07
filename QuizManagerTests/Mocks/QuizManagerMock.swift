@@ -16,16 +16,29 @@ protocol QuizManagerMockProtocol {
 }
 
 class QuizManagerMock : QuizManagerProtocol {
+    
+    
+
+
+    
+
+    
+
+    
+    
+
+    
 
     
     
     /// Current set of questions. question and answer given
     private var questionSet : [(question: QuestionProtocol, answerGiven: Int?)]?
     
+//    private var currentQuestion : QuestionProtocol?
     private var currentQuestion : QuestionProtocol?
 
     
-    func getNextQFromSet() -> (question: QuestionProtocol, answers: [String])? {
+    func getNextQFromSet<T>(with type: T.Type) -> (question: T, answers: [String])? where T : QuestionProtocol {
         guard let questionSet = questionSet else { return nil }
         
         for q in questionSet.enumerated() {
@@ -35,30 +48,32 @@ class QuizManagerMock : QuizManagerProtocol {
                 currentQuestion = q.element.question
                 let question = q.element.question
                 let answers = [question.qa, question.qb, question.qc, question.qd]
-                return (q.element.question, answers)
+                return (q.element.question as! T, answers)
+//                return nil
             }
         }
         return nil
     }
     
-    func getQuestionSetProgress() -> (question: [QuestionProtocol], correctAnswerIndex: [String], givenAnswers: [String], givenAnswerIndex: [String])? {
+    func getQuestionSetProgress<T>(with type: T.Type) -> (question: [QuestionProtocol], correctAnswerIndex: [String], givenAnswers: [String], givenAnswerIndex: [String])? where T : QuestionProtocol {
         return nil
     }
     
     
-    func setQuestionsRandomly<T>(with type: T.Type, numberQuestions no: Int, shufflefunction: (([(question: QuestionProtocol, answerGiven: Int?)]) -> (() -> [(question: QuestionProtocol, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void) where T : QuestionProtocol {
+    func setQuestionsRandomly<T>(with type: T.Type, numberQuestions no: Int, shufflefunction: (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void) where T : QuestionProtocol {
         let questions : [QuestionProtocol] = [q1,q2]
         questionSet = Array(zip(questions, Array(repeating: nil, count: questions.count)))
         completion(.success( true ) )
     }
     
-    func getCurrentQuestion() -> QuestionProtocol? {
+    func getCurrentQuestion<T>(with type: T.Type) -> T? where T : QuestionProtocol {
         return nil
     }
     
-    func getAllQs<T>(with type: T.Type, _ forDatabase: String?, withCompletionHandler completion: @escaping (Result<[QuestionProtocol], Error>) -> Void) where T : QuestionProtocol {
+    func getAllQs<T>(with type: T.Type, _ forDatabase: String?, withCompletionHandler completion: @escaping (Result<[T], Error>) -> Void) where T : QuestionProtocol {
         //
     }
+
     
     var answers = [0]
     
@@ -67,7 +82,7 @@ class QuizManagerMock : QuizManagerProtocol {
     }
 
     
-    func answeredQFromSet(withAnswer answers: [Int], recordAnswer: Bool?, withCompletionHandler completion: @escaping (Result<(isCorrect: Bool, isLast: Bool), Error>) -> Void) {
+    func answeredQFromSet<T>(with type: T.Type, withAnswer answers: [Int], recordAnswer: Bool?, withCompletionHandler completion: @escaping (Result<(isCorrect: Bool, isLast: Bool), Error>) -> Void) where T : QuestionProtocol {
         
         if self.answers == answers {
             completion(.success((true, false)))
@@ -80,7 +95,7 @@ class QuizManagerMock : QuizManagerProtocol {
     }
     
     
-    func getQuestionSetStats() -> (numberOfQs: Int, answered: Int, totalCorrect: Int, totalWrong: Int)? {
+    func getQuestionSetStats<T>(with type: T.Type) -> (numberOfQs: Int, answered: Int, totalCorrect: Int, totalWrong: Int)? where T : QuestionProtocol {
         return nil
     }
     

@@ -41,7 +41,7 @@ class SQLiteManagerTests: XCTestCase {
             switch result {
             case .failure (let error) : print (error)
             case .success (let data):
-                let a = data[0].getQuestions().first! // as! Question
+                let a = data[0].getQuestions().first!
                 XCTAssertEqual(a.description, "Sociology is the study of society")
             }
             expectation.fulfill()

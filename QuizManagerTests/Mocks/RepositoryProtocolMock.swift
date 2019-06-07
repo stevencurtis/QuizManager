@@ -10,9 +10,12 @@ import Foundation
 @testable import QuizManager
 
 class RepositoryProtocolMock: RepositoryProtocol {
-    func provideQuizzes<T>(with type: T.Type, withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Quiz<QuestionProtocol>], Error>) -> Void) where T : QuestionProtocol {
+    func provideQuizzes<T>(with type: T.Type, withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Quiz<T>], Error>) -> Void) where T : QuestionProtocol {
         //
     }
+
+    
+
     
 
 

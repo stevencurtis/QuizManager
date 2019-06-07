@@ -8,10 +8,10 @@
 
 import Foundation
 
+// each quiz contains a set of anything that conforms to the question protocol (nothing!)
+
 public class Quiz<T> {
-    // each quiz contains a set of anything that conforms to the question protocol (nothing!)
     private let questions : [T]
-    
     private let name : String
     
     init(name: String, questions: [T]) {
@@ -26,6 +26,4 @@ public class Quiz<T> {
     func getName() -> String {
         return name
     }
-    
-    
 }

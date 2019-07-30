@@ -10,7 +10,7 @@ import Foundation
 @testable import QuizManager
 
 
-public struct Question: QuestionProtocol, Codable, Equatable, CustomStringConvertible {
+public struct QuestionTestModel: QuestionProtocol, Codable, Equatable, CustomStringConvertible {
     public var description: String {
         return self.question
     }

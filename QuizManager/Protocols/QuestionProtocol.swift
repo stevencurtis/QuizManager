@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol QuestionProtocol {
+public protocol QuestionProtocol : BaseDataProtocol {
     init?(fields: [String] )
     var description: String {get}
     var question: String {get}

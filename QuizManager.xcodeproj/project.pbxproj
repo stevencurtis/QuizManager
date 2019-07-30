@@ -12,6 +12,14 @@
 		CA68A76D22A9CE95008E9972 /* FiledQuestions.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA68A76C22A9CE95008E9972 /* FiledQuestions.swift */; };
 		CA68A76F22A9CF0D008E9972 /* QuizManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA68A76E22A9CF0D008E9972 /* QuizManagerMock.swift */; };
 		CA68A77222A9CFA7008E9972 /* GameManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA68A77122A9CFA7008E9972 /* GameManagerTests.swift */; };
+		CA9EAA0822EAB7BC00259071 /* sociologydbupdatepragma.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = CA9EAA0722EAB7BC00259071 /* sociologydbupdatepragma.sqlite */; };
+		CAAB9ED822E95CBC0007ADFB /* computingpages.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = CAAB9ED722E95CBC0007ADFB /* computingpages.sqlite */; };
+		CAAB9EDA22E95D520007ADFB /* PageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAAB9ED922E95D520007ADFB /* PageManager.swift */; };
+		CAAB9EDC22E95D7E0007ADFB /* PageManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAAB9EDB22E95D7E0007ADFB /* PageManagerTests.swift */; };
+		CAAB9EDE22E95DD90007ADFB /* PageProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAAB9EDD22E95DD90007ADFB /* PageProtocol.swift */; };
+		CAAB9EE022E970860007ADFB /* Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAAB9EDF22E970860007ADFB /* Page.swift */; };
+		CAAB9EE322E9750E0007ADFB /* BaseDataProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAAB9EE222E9750E0007ADFB /* BaseDataProtocol.swift */; };
+		CAAB9EE522E978B60007ADFB /* PageTestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAAB9EE422E978B60007ADFB /* PageTestModel.swift */; };
 		CAD97D4D22A916D9005330CA /* QuizManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CAD97D4322A916D9005330CA /* QuizManager.framework */; };
 		CAD97D5422A916D9005330CA /* QuizManager.h in Headers */ = {isa = PBXBuildFile; fileRef = CAD97D4622A916D9005330CA /* QuizManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CAD97D5F22A916EF005330CA /* SQLiteManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD97D5D22A916EF005330CA /* SQLiteManager.swift */; };
@@ -19,7 +27,7 @@
 		CAD97D6322A916F5005330CA /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD97D6122A916F5005330CA /* Constants.swift */; };
 		CAD97D6622A916FB005330CA /* Quiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD97D6522A916FB005330CA /* Quiz.swift */; };
 		CAD97D6A22A91710005330CA /* SQLiteManagerMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD97D6922A91710005330CA /* SQLiteManagerMock.swift */; };
-		CAD97D6C22A91716005330CA /* Question.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD97D6B22A91716005330CA /* Question.swift */; };
+		CAD97D6C22A91716005330CA /* QuestionTestModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD97D6B22A91716005330CA /* QuestionTestModel.swift */; };
 		CAD97D6F22A91725005330CA /* RepositoryProtocolMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD97D6E22A91725005330CA /* RepositoryProtocolMock.swift */; };
 		CAD97D7222A9172C005330CA /* QuizManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD97D7022A9172C005330CA /* QuizManagerTests.swift */; };
 		CAD97D7322A9172C005330CA /* SQLiteManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD97D7122A9172C005330CA /* SQLiteManagerTests.swift */; };
@@ -43,6 +51,14 @@
 		CA68A76C22A9CE95008E9972 /* FiledQuestions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FiledQuestions.swift; sourceTree = "<group>"; };
 		CA68A76E22A9CF0D008E9972 /* QuizManagerMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuizManagerMock.swift; sourceTree = "<group>"; };
 		CA68A77122A9CFA7008E9972 /* GameManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GameManagerTests.swift; sourceTree = "<group>"; };
+		CA9EAA0722EAB7BC00259071 /* sociologydbupdatepragma.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = sociologydbupdatepragma.sqlite; sourceTree = "<group>"; };
+		CAAB9ED722E95CBC0007ADFB /* computingpages.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = computingpages.sqlite; sourceTree = "<group>"; };
+		CAAB9ED922E95D520007ADFB /* PageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageManager.swift; sourceTree = "<group>"; };
+		CAAB9EDB22E95D7E0007ADFB /* PageManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageManagerTests.swift; sourceTree = "<group>"; };
+		CAAB9EDD22E95DD90007ADFB /* PageProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageProtocol.swift; sourceTree = "<group>"; };
+		CAAB9EDF22E970860007ADFB /* Page.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Page.swift; sourceTree = "<group>"; };
+		CAAB9EE222E9750E0007ADFB /* BaseDataProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseDataProtocol.swift; sourceTree = "<group>"; };
+		CAAB9EE422E978B60007ADFB /* PageTestModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PageTestModel.swift; sourceTree = "<group>"; };
 		CAD97D4322A916D9005330CA /* QuizManager.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = QuizManager.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CAD97D4622A916D9005330CA /* QuizManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = QuizManager.h; sourceTree = "<group>"; };
 		CAD97D4722A916D9005330CA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -54,7 +70,7 @@
 		CAD97D6522A916FB005330CA /* Quiz.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Quiz.swift; sourceTree = "<group>"; };
 		CAD97D6722A91703005330CA /* sociologydb.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = sociologydb.sqlite; sourceTree = "<group>"; };
 		CAD97D6922A91710005330CA /* SQLiteManagerMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SQLiteManagerMock.swift; sourceTree = "<group>"; };
-		CAD97D6B22A91716005330CA /* Question.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Question.swift; sourceTree = "<group>"; };
+		CAD97D6B22A91716005330CA /* QuestionTestModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QuestionTestModel.swift; sourceTree = "<group>"; };
 		CAD97D6E22A91725005330CA /* RepositoryProtocolMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepositoryProtocolMock.swift; sourceTree = "<group>"; };
 		CAD97D7022A9172C005330CA /* QuizManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = QuizManagerTests.swift; path = "../../QuizManager copy 2/QuizManagerTests/Mocks/QuizManagerTests.swift"; sourceTree = "<group>"; };
 		CAD97D7122A9172C005330CA /* SQLiteManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SQLiteManagerTests.swift; sourceTree = "<group>"; };
@@ -80,6 +96,25 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		CAAB9EAA22E95A910007ADFB /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				CA68A76622A9CC95008E9972 /* QuestionProtocol.swift */,
+				CAAB9EDD22E95DD90007ADFB /* PageProtocol.swift */,
+				CAAB9EE222E9750E0007ADFB /* BaseDataProtocol.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		CAAB9EE122E972490007ADFB /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				CAD97D6522A916FB005330CA /* Quiz.swift */,
+				CAAB9EDF22E970860007ADFB /* Page.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
 		CAD97D3922A916D9005330CA = {
 			isa = PBXGroup;
 			children = (
@@ -103,11 +138,12 @@
 			children = (
 				CAD97D4622A916D9005330CA /* QuizManager.h */,
 				CAD97D5E22A916EF005330CA /* QuizManager.swift */,
+				CAAB9ED922E95D520007ADFB /* PageManager.swift */,
 				CA68A76A22A9CE81008E9972 /* GameManager.swift */,
 				CAD97D5D22A916EF005330CA /* SQLiteManager.swift */,
 				CAD97D6122A916F5005330CA /* Constants.swift */,
-				CA68A76622A9CC95008E9972 /* QuestionProtocol.swift */,
-				CAD97D6522A916FB005330CA /* Quiz.swift */,
+				CAAB9EAA22E95A910007ADFB /* Protocols */,
+				CAAB9EE122E972490007ADFB /* Models */,
 				CAD97D4722A916D9005330CA /* Info.plist */,
 			);
 			path = QuizManager;
@@ -117,8 +153,9 @@
 			isa = PBXGroup;
 			children = (
 				CA68A77122A9CFA7008E9972 /* GameManagerTests.swift */,
-				CAD97D7122A9172C005330CA /* SQLiteManagerTests.swift */,
 				CAD97D7022A9172C005330CA /* QuizManagerTests.swift */,
+				CAAB9EDB22E95D7E0007ADFB /* PageManagerTests.swift */,
+				CAD97D7122A9172C005330CA /* SQLiteManagerTests.swift */,
 				CAD97D6822A91706005330CA /* Others */,
 				CAD97D6D22A9171B005330CA /* Models */,
 				CAD97D7722A9173F005330CA /* Selection */,
@@ -132,6 +169,8 @@
 			isa = PBXGroup;
 			children = (
 				CAD97D6722A91703005330CA /* sociologydb.sqlite */,
+				CA9EAA0722EAB7BC00259071 /* sociologydbupdatepragma.sqlite */,
+				CAAB9ED722E95CBC0007ADFB /* computingpages.sqlite */,
 			);
 			path = Others;
 			sourceTree = "<group>";
@@ -139,7 +178,8 @@
 		CAD97D6D22A9171B005330CA /* Models */ = {
 			isa = PBXGroup;
 			children = (
-				CAD97D6B22A91716005330CA /* Question.swift */,
+				CAD97D6B22A91716005330CA /* QuestionTestModel.swift */,
+				CAAB9EE422E978B60007ADFB /* PageTestModel.swift */,
 				CA68A76C22A9CE95008E9972 /* FiledQuestions.swift */,
 			);
 			path = Models;
@@ -261,6 +301,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CAAB9ED822E95CBC0007ADFB /* computingpages.sqlite in Resources */,
+				CA9EAA0822EAB7BC00259071 /* sociologydbupdatepragma.sqlite in Resources */,
 				CAD97D7822A91776005330CA /* sociologydb.sqlite in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -275,6 +317,10 @@
 				CAD97D6022A916EF005330CA /* QuizManager.swift in Sources */,
 				CA68A76B22A9CE81008E9972 /* GameManager.swift in Sources */,
 				CA68A76722A9CC95008E9972 /* QuestionProtocol.swift in Sources */,
+				CAAB9EDA22E95D520007ADFB /* PageManager.swift in Sources */,
+				CAAB9EDE22E95DD90007ADFB /* PageProtocol.swift in Sources */,
+				CAAB9EE022E970860007ADFB /* Page.swift in Sources */,
+				CAAB9EE322E9750E0007ADFB /* BaseDataProtocol.swift in Sources */,
 				CAD97D6622A916FB005330CA /* Quiz.swift in Sources */,
 				CAD97D5F22A916EF005330CA /* SQLiteManager.swift in Sources */,
 				CAD97D6322A916F5005330CA /* Constants.swift in Sources */,
@@ -286,11 +332,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				CAD97D7222A9172C005330CA /* QuizManagerTests.swift in Sources */,
-				CAD97D6C22A91716005330CA /* Question.swift in Sources */,
+				CAD97D6C22A91716005330CA /* QuestionTestModel.swift in Sources */,
+				CAAB9EE522E978B60007ADFB /* PageTestModel.swift in Sources */,
 				CA68A76D22A9CE95008E9972 /* FiledQuestions.swift in Sources */,
 				CAD97D7622A9173C005330CA /* Array - noshuffle.swift in Sources */,
 				CA68A77222A9CFA7008E9972 /* GameManagerTests.swift in Sources */,
 				CAD97D7322A9172C005330CA /* SQLiteManagerTests.swift in Sources */,
+				CAAB9EDC22E95D7E0007ADFB /* PageManagerTests.swift in Sources */,
 				CAD97D6A22A91710005330CA /* SQLiteManagerMock.swift in Sources */,
 				CA68A76F22A9CF0D008E9972 /* QuizManagerMock.swift in Sources */,
 				CAD97D6F22A91725005330CA /* RepositoryProtocolMock.swift in Sources */,

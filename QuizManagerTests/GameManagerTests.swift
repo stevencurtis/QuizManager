@@ -21,7 +21,7 @@ class GameManagerTests: XCTestCase {
         let qm = QuizManagerMock()
         let gm = GameManager(quizManager: qm)
         
-        gm.startGame(with: Question.self, players: 1, withCompletionHandler: { result in
+        gm.startGame(with: QuestionTestModel.self, players: 1, withCompletionHandler: { result in
             switch result {
             case .failure (let error):
                 let custerr = error as NSError
@@ -39,7 +39,7 @@ class GameManagerTests: XCTestCase {
         let qm = QuizManagerMock()
         let gm = GameManager(quizManager: qm)
         
-        gm.startGame(with: Question.self, players: 1, withCompletionHandler: { result in
+        gm.startGame(with: QuestionTestModel.self, players: 1, withCompletionHandler: { result in
             switch result {
             case .failure (let error):
                 XCTAssertNil(error)
@@ -55,7 +55,7 @@ class GameManagerTests: XCTestCase {
         let expectation = XCTestExpectation(description: #function)
         let qm = QuizManagerMock()
         let gm = GameManager(quizManager: qm)
-        gm.startGame(with: Question.self, players: 2, withCompletionHandler: { result in
+        gm.startGame(with: QuestionTestModel.self, players: 2, withCompletionHandler: { result in
             switch result {
             case .failure (let error):
                 XCTAssertNil(error)
@@ -88,6 +88,14 @@ class GameManagerTests: XCTestCase {
         XCTAssertEqual(gm.getCurrentPlayer(), 1)
     }
     
+ // swapping player does not update the scores
+//    func testSwapPlayerMidTurn() {
+//        let qm = QuizManagerMock()
+//        let gm = GameManager(quizManager: qm, dice1: 4, dice2: 5, player1ScoreTurn: 5, player2ScoreTurn: 0, player1ScoreGame: 1, player2ScoreGame: 0, currentPlayer: 0)
+//        gm.swapPlayer()
+//        XCTAssertEqual(gm.scores(), GameScores(player1ScoreTurn: 0, player2ScoreTurn: 5, player1ScoreGame: 1, player2ScoreGame: 0))
+//    }
+//
     
     func testAddToGameScoreOne() {
         let qm = QuizManagerMock()
@@ -122,7 +130,7 @@ class GameManagerTests: XCTestCase {
     func testInitialScores() {
         let qm = QuizManagerMock()
         let gm = GameManager(quizManager: qm)
-        gm.startGame(with: Question.self, players: 1, withCompletionHandler: { result in })
+        gm.startGame(with: QuestionTestModel.self, players: 1, withCompletionHandler: { result in })
         let zeroScores = GameScores(player1ScoreTurn: 0, player2ScoreTurn: 0, player1ScoreGame: 0, player2ScoreGame: 0)
         XCTAssertEqual(gm.getScores(), zeroScores)
     }
@@ -133,7 +141,7 @@ class GameManagerTests: XCTestCase {
         let _ = gm.rollDice(randFuncDie1: { _ in return 2 }, randFuncDie2: { _ in return 3 })
         
         gm.addToTurnScore()
-        let resultantScores = GameScores(player1ScoreTurn: 7, player2ScoreTurn: 0, player1ScoreGame: 3, player2ScoreGame: 4)
+        let resultantScores = GameScores(player1ScoreTurn: 9, player2ScoreTurn: 0, player1ScoreGame: 3, player2ScoreGame: 4)
         XCTAssertEqual(gm.getScores(), resultantScores)
     }
 
@@ -143,7 +151,7 @@ class GameManagerTests: XCTestCase {
         let _ = gm.rollDice(randFuncDie1: { _ in return 4 }, randFuncDie2: { _ in return 5 })
         
         gm.addToTurnScore()
-        let resultantScores = GameScores(player1ScoreTurn: 0, player2ScoreTurn: 9, player1ScoreGame: 32, player2ScoreGame: 12)
+        let resultantScores = GameScores(player1ScoreTurn: 0, player2ScoreTurn: 11, player1ScoreGame: 32, player2ScoreGame: 12)
         XCTAssertEqual(gm.getScores(), resultantScores)
     }
     
@@ -153,9 +161,9 @@ class GameManagerTests: XCTestCase {
         let gm = GameManager(quizManager: qm)
         
         let result = gm.rollDice(randFuncDie1: { _ in
-            return 1
+            return 0
         }, randFuncDie2: { _ in
-            return 1
+            return 0
         })
         
         _ = GameScores(player1ScoreTurn: 0, player2ScoreTurn: 0, player1ScoreGame: 0, player2ScoreGame: 0)
@@ -177,9 +185,9 @@ class GameManagerTests: XCTestCase {
         let gm = GameManager(quizManager: qm)
         
         let result = gm.rollDice(randFuncDie1: { _ in
-            return 1
+            return 0
         }, randFuncDie2: { _ in
-            return 4
+            return 3
         })
         
         let _ = GameScores(player1ScoreTurn: 0, player2ScoreTurn: 0, player1ScoreGame: 0, player2ScoreGame: 0)
@@ -201,11 +209,11 @@ class GameManagerTests: XCTestCase {
         
     }
     
-    func testAnswerQuestionCorrectly() {
+    func testScoresAnswerQuestionCorrectly() {
         let expectation = XCTestExpectation(description: #function)
         let qm = QuizManagerMock()
         let gm = GameManager(quizManager: qm, dice1: 2, dice2: 2, player1ScoreTurn: 5, player2ScoreTurn: 0, player1ScoreGame: 12, player2ScoreGame: 0, currentPlayer: 0)
-        gm.answer(with: Question.self, [0], withCompletionHandler: { result in
+        gm.answer(with: QuestionTestModel.self, [0], withCompletionHandler: { result in
             switch result {
             case .failure(let error):
                 XCTAssertNotNil(error)
@@ -219,11 +227,35 @@ class GameManagerTests: XCTestCase {
     }
     
     
-    func testAnswerQuestionIncorrectly() {
+//    func testDeliverNewQuestionAnswerQuestionCorrectly() {
+//        let expectation = XCTestExpectation(description: #function)
+//        let qm = QuizManagerMock()
+//        let gm = GameManager(quizManager: qm, dice1: 2, dice2: 2, player1ScoreTurn: 5, player2ScoreTurn: 0, player1ScoreGame: 12, player2ScoreGame: 0, currentPlayer: 0)
+//
+//        gm.startGame(with: Question.self, players: 1, withCompletionHandler: {_ in })
+//        
+//        let firstQ = gm.currentQ(with: Question.self)
+//        gm.answer(with: Question.self, [0], withCompletionHandler: { result in
+//            switch result {
+//            case .failure(let error):
+//                XCTAssertNotNil(error)
+//            case .success (let calculatedScores):
+//                let nextQ =  gm.nextQ(with: Question.self)
+//
+//                XCTAssertNotEqual(firstQ?.question, nextQ?.question)
+//
+//            }
+//            expectation.fulfill()
+//        })
+//        wait(for: [expectation], timeout: 0.5)
+//    }
+    
+    
+    func testScoresAnswerQuestionIncorrectly() {
         let expectation = XCTestExpectation(description: #function)
         let qm = QuizManagerMock()
         let gm = GameManager(quizManager: qm, dice1: 2, dice2: 2, player1ScoreTurn: 5, player2ScoreTurn: 0, player1ScoreGame: 12, player2ScoreGame: 0, currentPlayer: 0)
-        gm.answer(with: Question.self, [1], withCompletionHandler: { result in
+        gm.answer(with: QuestionTestModel.self, [1], withCompletionHandler: { result in
             switch result {
             case .failure (let error):
                 XCTAssertNotNil(error)

@@ -12,8 +12,8 @@ public protocol GameManagerProtocol {
     func switchAnswerer()
     func startGame<T: QuestionProtocol>(with type: T.Type, players: Int, withCompletionHandler completion: @escaping (Result<(question: QuestionProtocol, answers: [String])?, Error>) -> Void)
     
-    func nextQ<T: QuestionProtocol>(with type: T.Type) -> QuestionProtocol?
-    func currentQ<T: QuestionProtocol>(with type: T.Type)  -> QuestionProtocol
+    func nextQ<T: QuestionProtocol>(with type: T.Type) -> T?
+    func currentQ<T: QuestionProtocol>(with type: T.Type)  -> QuestionProtocol?
     
     func rollDice(randFuncDie1: ((ClosedRange<Int>) -> Int), randFuncDie2: ((ClosedRange<Int>) -> Int)) -> (dice1: Int, dice2: Int, losePointsTurn: Bool, losePointsGame: Bool)
     func getButtonStatus() -> (ButtonStatus)
@@ -86,8 +86,8 @@ public class GameManager {
         answerEnabled = true
         passEnabled = true
         
-        dice1 = randFuncDie1(0...5)
-        dice2 = randFuncDie2(0...5)
+        dice1 = randFuncDie1(0...5) + 1
+        dice2 = randFuncDie2(0...5) + 1
         
         var isTurnZero = false
         var isGameZero = false
@@ -117,12 +117,12 @@ public class GameManager {
     // Roll the dice. Answer the questions - and get points if you answer the question correctly.
     // Roll a 1 - lose your points for that turn. Roll a double 1 - lose all your points.
     
-    public func nextQ<T: QuestionProtocol>(with type: T.Type) -> QuestionProtocol? {
-        return quizMngr.getNextQFromSet(with: type) as? QuestionProtocol
+    public func nextQ<T: QuestionProtocol>(with type: T.Type) -> T? {
+        return (quizMngr.getNextQFromSet(with: type)!.question)
     }
     
-    public func currentQ<T: QuestionProtocol>(with type: T.Type)  -> QuestionProtocol {
-        return (quizMngr!.getCurrentQuestion(with: type))!
+    public func currentQ<T: QuestionProtocol>(with type: T.Type)  -> QuestionProtocol? {
+        return (quizMngr?.getCurrentQuestion(with: type))
     }
     
     public func scores() -> (GameScores) {
@@ -142,7 +142,7 @@ public class GameManager {
     public func startGame<T: QuestionProtocol>(with type: T.Type, players: Int, withCompletionHandler completion: @escaping (Result<(question: QuestionProtocol, answers: [String])?, Error>) -> Void) {
         guard players <= 2 else { fatalError("One or two players only") }
         numberPlayers = players
-        quizMngr.setQuestionsRandomly(with: type, numberQuestions: 100, shufflefunction: Array.shuffled, withCompletionHandler: {result in
+        quizMngr.setQuestionsRandomly(with: type, numberQuestions: 100, shufflebool: true, shufflefunction: Array.shuffled, withCompletionHandler: {result in
             switch result {
             case .failure(let error):
                 completion(.failure(error))
@@ -229,5 +229,7 @@ public class GameManager {
 
 }
 
-extension GameManager: GameManagerProtocol { }
+extension GameManager: GameManagerProtocol {
+
+}
 

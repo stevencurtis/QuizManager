@@ -14,9 +14,10 @@ public protocol QuizManagerProtocol {
     func answeredQFromSet<T: QuestionProtocol>(with type: T.Type, withAnswer answers: [Int], recordAnswer: Bool?, withCompletionHandler completion: @escaping (Result<(isCorrect: Bool, isLast: Bool), Error>) -> Void)
     func getQuestionSetProgress<T: QuestionProtocol>(with type: T.Type) -> (question: [QuestionProtocol], correctAnswerIndex: [String], givenAnswers: [String], givenAnswerIndex: [String])?
     func getQuestionSetStats<T: QuestionProtocol> (with type: T.Type) -> (numberOfQs: Int, answered: Int, totalCorrect: Int, totalWrong: Int)?
-    func setQuestionsRandomly<T>(with type: T.Type, numberQuestions no: Int, shufflefunction: (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void) where T : QuestionProtocol
+    func setQuestionsRandomly<T>(with type: T.Type, numberQuestions no: Int, shufflebool: Bool, shufflefunction: (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void) where T : QuestionProtocol
     func clearQuestionSet()
     func getCurrentQuestion<T: QuestionProtocol>(with type: T.Type) -> T?
+    func getSpecificQuestionFromSet<T: QuestionProtocol>(with type: T.Type, locationNumber: Int) -> T?
 }
 
 public class QuizManager {
@@ -49,6 +50,18 @@ public class QuizManager {
             return currentQuestion as? T
         }
         return getNextQFromSet(with: type)?.question
+    }
+    
+    public func getSpecificQuestionFromSet<T: QuestionProtocol>(with type: T.Type, locationNumber: Int) -> T? {
+        
+        guard let questionSet = questionSet else { return nil }
+        
+        if locationNumber <= questionSet.count {
+            let question = questionSet[locationNumber]
+            return question.question as? T
+        }
+
+        return nil
     }
     
     public func clearQuestionSet() {
@@ -90,14 +103,19 @@ public class QuizManager {
     }
     
     /// returns n questions from the total questions
-    private func nQuestions<T: QuestionProtocol>(with type: T.Type, n: Int) -> [QuestionProtocol]? {
+    private func nQuestions<T: QuestionProtocol>(with type: T.Type, n: Int, shuffle: Bool = false) -> [QuestionProtocol]? {
         var totalqs = [Any]()
         for res in anyquizzes {
-            if let castRes = res.getQuestions() as? [T]
-            { totalqs += castRes.compactMap { $0 } }
+            if let questionsAsArrayT = res.getQuestions() as? [T]
+            { totalqs += questionsAsArrayT.compactMap { $0 } }
         }
         
         guard n <= totalqs.count else { return nil }
+
+        if shuffle {
+            totalqs = totalqs.shuffled()
+        }
+        
         var timesAnswered = 0
         var qs = [QuestionProtocol]()
         while qs.count < n {
@@ -150,20 +168,30 @@ public class QuizManager {
                     // make it negative so we can then "temporarily" store the answer
                     questionSet![q.offset].answerGiven = -abs(answer + 1)
                 }
-                guard let questionSet = questionSet?[q.offset] as? T else {return}
-                if ( (answer + 1) == Int(questionSet.solution)!) {
-                    completion(.success( (true, last)))
-                } else {
-                    completion(.success( (false, last)))
+                
+                if let qsAnswer = questionSet?[q.offset].question {
+                    let ans = qsAnswer as! T
+                    if ( (answer + 1) == Int(ans.solution) ) {
+                        completion(.success( (true, last)))
+                        return
+                    } else {
+                        completion(.success( (false, last)))
+                        return
+                    }
                 }
+                let er = NSError(domain: "Could not provide quizzes", code: -1009, userInfo: nil)
+                completion(.failure(er))
                 return
             }
         }
     }
     
     // questions are set from the interface produce randomquestions
-    private func setQuestionSet<T: QuestionProtocol>(with type: T.Type,_ no: Int, shufflefunction : (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)])) = Array.shuffled) {
-        if let randomQs = nQuestions(with: type, n: no) {
+    private func setQuestionSet<T: QuestionProtocol>(with type: T.Type,_ no: Int, shuffle: Bool, shufflefunction : (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)])) = Array.shuffled) {
+        
+
+
+        if let randomQs = nQuestions(with: type,  n: no, shuffle: shuffle) {
             let number = randomQs.count
             let firstPart = randomQs as [Any]
             let secondPart = Array<Int?>(repeating: nil, count: number )
@@ -196,20 +224,22 @@ public class QuizManager {
     public func getQuestionSetStats<T: QuestionProtocol> (with type: T.Type) -> (numberOfQs: Int, answered: Int, totalCorrect: Int, totalWrong: Int)? {
         guard questionSet != nil && questionSet!.count > 0 else {return nil}
         let number = questionSet!.count
-        let answered = questionSet!.filter{ $0.answerGiven != nil && $0.answerGiven ?? 0 >= 0 }.count
+        let answered = questionSet!.filter{ $0.answerGiven != nil && abs($0.answerGiven ?? -1) >= 0 }.count
         let correct: [(Int?, Int?)]
         correct = Array ( zip(questionSet!.map{ Int( ($0.question as? T)?.solution ?? "") }, questionSet!.map{ $0.answerGiven }) )
-        let correctAnswers = correct.filter{ $0.0 == ( ($0.1 ?? 10) + 1)}.count
+        let correctAnswers = correct.filter{ abs($0.0 ?? 10) == ( ( abs($0.1 ?? 10) ) )}.count
         let wrong = number - correctAnswers
         return (numberOfQs: number, answered: answered, totalCorrect: correctAnswers, totalWrong: wrong)
     }
     
     // Set up the questionset quiz with random questions
     
-    public func setQuestionsRandomly<T>(with type: T.Type, numberQuestions no: Int, shufflefunction: (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void) where T : QuestionProtocol {
+
+        
+    public func setQuestionsRandomly<T>(with type: T.Type, numberQuestions no: Int, shufflebool: Bool, shufflefunction: (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void) where T : QuestionProtocol {
         
         if anyquizzes.count == repos.count {
-            setQuestionSet(with: type, no, shufflefunction: shufflefunction!)
+            setQuestionSet(with: type, no, shuffle: shufflebool, shufflefunction: shufflefunction!)
             completion(.success( true ) )
             return
         }
@@ -221,7 +251,7 @@ public class QuizManager {
             case .failure(let error):
                 completion(.failure(error) )
             case .success:
-                self.setQuestionSet(with: type, no, shufflefunction: shufflefunction!)
+                self.setQuestionSet(with: type, no, shuffle: shufflebool, shufflefunction: shufflefunction!)
                 if self.questionSet == nil || self.questionSet!.count > no {
                     completion(.failure(NSError(domain: "Insufficient questions", code: -1, userInfo: nil)) )
                 } else {
@@ -233,6 +263,7 @@ public class QuizManager {
     
     public func initializeQuizzes<T: QuestionProtocol>(with type: T.Type, withCompletionHandler completion: ((Result<[Quiz<T>], Error>) -> Void)?)  {
         for repo in repos {
+
             repo.provideQuizzes(with: type, withdbpathfunc: nil, withCompletionHandler: {result in
                 switch result {
                 case .failure(let error):

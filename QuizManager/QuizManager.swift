@@ -60,7 +60,6 @@ public class QuizManager {
             let question = questionSet[locationNumber]
             return question.question as? T
         }
-
         return nil
     }
     
@@ -127,11 +126,9 @@ public class QuizManager {
     }
     
     // return the next question from the current question set
-    //    public func getNextQFromSet() -> (question: QuestionProtocol, answers: [String])? {
     public func getNextQFromSet<T: QuestionProtocol>(with type: T.Type) -> (question: T, answers: [String])? {
         
         guard let questionSet = questionSet else { return nil }
-        
         for q in questionSet.enumerated() {
             // ignore the "temporary" answerGiven
             // TODO: consider how we will store the temporary answers
@@ -145,7 +142,6 @@ public class QuizManager {
         }
         return nil
     }
-    
     
     // this can only be called ONCE for each question!! - so needs a check
     // TODO: Get this to work properly for multiple answers: need to know the format of this that I previously used in the databases
@@ -188,8 +184,6 @@ public class QuizManager {
     
     // questions are set from the interface produce randomquestions
     private func setQuestionSet<T: QuestionProtocol>(with type: T.Type,_ no: Int, shuffle: Bool, shufflefunction : (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)])) = Array.shuffled) {
-        
-
 
         if let randomQs = nQuestions(with: type,  n: no, shuffle: shuffle) {
             let number = randomQs.count
@@ -220,7 +214,6 @@ public class QuizManager {
         return ( questionSet!.map{ $0.question as! T } ,correctans,correctAnswers,givenAnswersIndex)
     }
     
-    
     public func getQuestionSetStats<T: QuestionProtocol> (with type: T.Type) -> (numberOfQs: Int, answered: Int, totalCorrect: Int, totalWrong: Int)? {
         guard questionSet != nil && questionSet!.count > 0 else {return nil}
         let number = questionSet!.count
@@ -233,9 +226,6 @@ public class QuizManager {
     }
     
     // Set up the questionset quiz with random questions
-    
-
-        
     public func setQuestionsRandomly<T>(with type: T.Type, numberQuestions no: Int, shufflebool: Bool, shufflefunction: (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void) where T : QuestionProtocol {
         
         if anyquizzes.count == repos.count {
@@ -263,23 +253,25 @@ public class QuizManager {
     
     public func initializeQuizzes<T: QuestionProtocol>(with type: T.Type, withCompletionHandler completion: ((Result<[Quiz<T>], Error>) -> Void)?)  {
         for repo in repos {
-
-            repo.provideQuizzes(with: type, withdbpathfunc: nil, withCompletionHandler: {result in
+            repo.provideQuizzes(withdbpathfunc: nil, withCompletionHandler: {result in
                 switch result {
                 case .failure(let error):
                     if let completion = completion {
                         completion(.failure(error) )
                     }
                 case .success(let result):
-                    
                     var qs = [T]()
                     for res in result {
-                        qs += res.getQuestions()
+                        // convert to questions
+                        if let question = T.init(fields: res) {
+                            qs.append(question)
+                        }
                     }
                     self.anyquizzes.append( Quiz(name: "Quiz", questions: qs)  )
-                    
+                    let tests = Quiz(name: "Quiz", questions: qs)
+                    print ( tests )
                     if let completion = completion {
-                        completion(.success(result))
+                        completion(.success( [Quiz(name: "Quiz", questions: qs)] ))
                     }
                 }
             })

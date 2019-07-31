@@ -89,13 +89,12 @@ class GameManagerTests: XCTestCase {
     }
     
  // swapping player does not update the scores
-//    func testSwapPlayerMidTurn() {
-//        let qm = QuizManagerMock()
-//        let gm = GameManager(quizManager: qm, dice1: 4, dice2: 5, player1ScoreTurn: 5, player2ScoreTurn: 0, player1ScoreGame: 1, player2ScoreGame: 0, currentPlayer: 0)
-//        gm.swapPlayer()
-//        XCTAssertEqual(gm.scores(), GameScores(player1ScoreTurn: 0, player2ScoreTurn: 5, player1ScoreGame: 1, player2ScoreGame: 0))
-//    }
-//
+    func testSwapPlayerMidTurn() {
+        let qm = QuizManagerMock()
+        let gm = GameManager(quizManager: qm, dice1: 4, dice2: 5, player1ScoreTurn: 5, player2ScoreTurn: 0, player1ScoreGame: 1, player2ScoreGame: 0, currentPlayer: 0)
+        gm.swapPlayer()
+        XCTAssertEqual(gm.scores(), GameScores(player1ScoreTurn: 5, player2ScoreTurn: 0, player1ScoreGame: 1, player2ScoreGame: 0))
+    }
     
     func testAddToGameScoreOne() {
         let qm = QuizManagerMock()

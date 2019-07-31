@@ -10,12 +10,11 @@ import Foundation
 @testable import QuizManager
 
 protocol SQLiteManagerMockProtocol {
-    func setQuestions(questions: [QuestionProtocol])
+    func setQuestions(questions: [[String]])
     func setQuestions(questions: Qs)
     func setFailure(shouldFail: Bool)
-    func setPages(pages: [PageProtocol])
+    func setPages(pages: [[String]])
     func setPages(pages: Ps)
-
 }
 
 typealias SQLiteMock = RepositoryProtocol & SQLiteManagerMockProtocol
@@ -30,80 +29,75 @@ enum Ps {
     case few
 }
 
-let q1 = QuestionTestModel(name: "FirstQ", question: "Hello, how are you?", qa: "Fine", qb: "Tired", qc: "Worried", qd: "Dead", solution: "1", qPic: "no pic", qTopic: "Test Topic", difficulty: "1", examboard: "AQA", tip: "Do What you feel", explainAnswer: "Doing what you feel makes sense", qSimilar: "2", wrongOne: "What were you thinking", wrongTwo: "It's wrong", wrongThree: "We are worried", wrongFour: "If you are dead how do you answer the question", reference: "No reference")
+// solution 1
+let q1 = ["FirstQ","1 question","1","2","3","4","1","1","1","1","1","1","1","1","1","1","1","1","1"]
 
-let q2 = QuestionTestModel(name: "SecondQ", question: "Why are you doing this quiz", qa: "You are wrong", qb: "It is fun", qc: "Something to do", qd: "This is not a fair question", solution: "2", qPic: "no pic", qTopic: "Test Topic", difficulty: "1", examboard: "AQA", tip: "Do What you think is right", explainAnswer: "Well, it is something to do", qSimilar: "2", wrongOne: "I agree you are wrong", wrongTwo: "Yes, it is fun", wrongThree: "Don't do things just because it is something to do", wrongFour: "For an unfair question there is no answer", reference: "No reference")
+// solution 1
+let q2 = ["SECOND","2 question","1","2","3","4","1","1","1","1","1","1","1","1","1","1","1","1","1"]
 
-let q3 = QuestionTestModel(name: "ThirdQ", question: "This is the best quiz ever", qa: "You are wrong", qb: "It is fun", qc: "Something to do", qd: "This is not a fair question", solution: "2", qPic: "no pic", qTopic: "Test Topic", difficulty: "1", examboard: "AQA", tip: "Do What you think is right", explainAnswer: "Well, it is something to do", qSimilar: "2", wrongOne: "I agree you are wrong", wrongTwo: "Yes, it is fun", wrongThree: "Don't do things just because it is something to do", wrongFour: "For an unfair question there is no answer", reference: "No reference")
+// solution 2
+let q3 = ["THIRD","3 question","1","2","3","4","2","1","1","1","1","1","1","1","1","1","1","1","1"]
 
-let p1 = PageTestModel(name: "test1")
-let p2 = PageTestModel(name: "test2")
-let p3 = PageTestModel(name: "test2")
-
+let p1 = ["test1"]
+let p2 = ["test2"]
+let p3 = ["test3"]
 
 class SQLiteManagerMock: SQLiteMock {
-    func provideDbVersion(withdbpathfunc: (() -> String?)?) -> Int {
-        return 0
-    }
-    
-    func providePages<T>(with type: T.Type, withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Page<T>], Error>) -> Void) where T : PageProtocol {
 
-        var typePs = [T]()
+    // provide the quizzes from the repos that you have, please
+    func providePages(withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[[String]], Error>) -> Void) {
+//        var typePs = [T]()
         if pages.count == 0 {
             pages.append(p1)
             pages.append(p2)
             pages.append(p3)
 
         }
-        typePs.append(p1 as! T)
-        typePs.append(p2 as! T)
-        typePs.append(p3 as! T)
+//        typePs.append(p1 as! T)
+//        typePs.append(p2 as! T)
+//        typePs.append(p3 as! T)
 
-        
-        let content = Page(name: "TestPages", pages: typePs)
-        
+        // let content = Page(name: "TestPages", pages: typePs)
+
         if !shouldFail {
-            completion(.success(  [content]  ))
+            completion(.success(  pages  ))
         } else {
             let er = NSError(domain: "Could not provide pages", code: -1009, userInfo: nil)
             completion(.failure(er))
         }
     }
     
-    var pages = [PageProtocol]()
-
-
-    
-    var questions = [QuestionProtocol]()
-
-    
-    // provide the quizzes from the repos that you have, please
-
-    func provideQuizzes<T>(with type: T.Type, withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Quiz<T>], Error>) -> Void) where T : QuestionProtocol {
-        
-        var typeQs = [T]()
-        
+    func provideQuizzes(withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[[String]], Error>) -> Void) {
         if questions.count == 0 {
-            questions.append(q1)
-            questions.append(q2)
+//            questions.append(q1)
+//            questions.append(q2)
+//            questions.append([["FirstQ"],["Hello, how are you?"]])
+//            questions.append([["FirstQ"],["Hello, how are you?"]])
+            questions = [["FirstQ","1 question","1","2","3","4","1","1","1","1","1","1","1","1","1","1","1","1","1"],["SECOND","2 question","1","2","3","3","1","1","1","1","1","1","1","1","1","1","1","1","1"]]
         }
-        
-        typeQs.append(q1 as! T)
-        typeQs.append(q2 as! T)
-        
 
-        let quiz = Quiz(name: "TestQuiz", questions: typeQs)
-
+//        typeQs.append(q1 as! T)
+//        typeQs.append(q2 as! T)
 
         if !shouldFail {
-            completion(.success(  [quiz]  ))
+//            completion(.success(  [quiz]  ))
+            completion(.success(  questions ))
+
         } else {
             let er = NSError(domain: "Could not provide quizzes", code: -1009, userInfo: nil)
             completion(.failure(er))
         }
     }
     
-    func setQuestions(questions: [QuestionProtocol]) {
+    func provideDbVersion(withdbpathfunc: (() -> String?)?) -> Int {
+        return 0
+    }
+
+    var pages = [[String]]()
+    var questions = [[String]]()
+
+
+    func setQuestions(questions: [[String]]) {
         self.questions = questions
     }
     
@@ -112,12 +106,13 @@ class SQLiteManagerMock: SQLiteMock {
         case .many:
             self.questions = [q1, q2, q3]
         default:
+            print ()
             self.questions = [q1, q2]
         }
     }
     
     
-    func setPages(pages: [PageProtocol]) {
+    func setPages(pages: [[String]]) {
         self.pages = pages
     }
     
@@ -129,7 +124,6 @@ class SQLiteManagerMock: SQLiteMock {
             self.pages = [p1, p2]
         }
     }
-    
 
     
     var shouldFail = false

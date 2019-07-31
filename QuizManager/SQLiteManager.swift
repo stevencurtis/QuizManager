@@ -10,8 +10,8 @@ import Foundation
 import SQLite3
 
 public protocol RepositoryProtocol{
-    func provideQuizzes<T: QuestionProtocol>(with type: T.Type,withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Quiz<T>], Error>) -> Void)
-    func providePages<T: PageProtocol>(with type: T.Type,withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Page<T>], Error>) -> Void)    
+    func provideQuizzes (withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[[String]], Error>) -> Void)
+    func providePages(withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[[String]], Error>) -> Void)
     func provideDbVersion(withdbpathfunc: (() -> String?)?) -> Int
 }
 
@@ -20,55 +20,50 @@ public class SQLiteManager {
     var tableNames = [String]()
     var quizManager: QuizManager?
     var fetching = false
-    private var quizzes = [Quiz<QuestionProtocol>]()
     
-    public func providePages<T: PageProtocol>(with type: T.Type,withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Page<T>], Error>) -> Void){
+    public func providePages(withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[[String]], Error>) -> Void){
         
         guard fetching == false else {return}
         fetching = true
         
-        var currentPage = [Page<T>]()
+        var currentPage = [[String]]()
         
         for dbName in dbases {
             var dbPath: String?
             if withdbpathfunc == nil {
                 dbPath = createDBPath(dbName)
                 dbPath = ( copyDatabaseIfNeeded(databasePath: dbPath!, dbname: dbName) )
-
             } else {
                 dbPath = withdbpathfunc!()
             }
             let db = openDatabase(dbPath!)
-            let qs = readQuestionsFromDB(with: type, db!)
-            // create a new Quiz, and add to the array of quizzes
-            currentPage.append(Page(name: dbName, pages: qs))
+            let qs = readQuestionsFromDB(db!)
+            currentPage = qs
         }
         
         completion(.success(currentPage))
         fetching = false
     }
     
-    public func provideQuizzes<T: QuestionProtocol>(with type: T.Type,withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[Quiz<T>], Error>) -> Void)
-    {
+    public func provideQuizzes (withdbpathfunc: (() -> String?)?, withCompletionHandler completion: @escaping (Result<[[String]], Error>) -> Void) {
         guard fetching == false else {return}
         fetching = true
         
-        var currentQuiz = [Quiz<T>]()
-
+        var currentQuiz = [[String]]()
+        
         for dbName in dbases {
             var dbPath: String?
             if withdbpathfunc == nil {
                 dbPath = createDBPath(dbName)
                 dbPath = ( copyDatabaseIfNeeded(databasePath: dbPath!, dbname: dbName) )
-
+                
             } else {
                 dbPath = withdbpathfunc!()
             }
             let db = openDatabase(dbPath!)
             
-            let qs = readQuestionsFromDB(with: type, db!)
-            // create a new Quiz, and add to the array of quizzes
-            currentQuiz.append(Quiz(name: dbName, questions: qs))
+            let qs = readQuestionsFromDB(db!)
+            currentQuiz = qs
         }
         
         completion(.success(currentQuiz))
@@ -122,7 +117,6 @@ public class SQLiteManager {
         catch {
             let err = error as NSError
             if err.code == 516 {
-                
                 let quizver = UserDefaults.standard.integer(forKey: "quizversion") // default = 0
                 print ("currentDBVersion", currentDBVersion, "quizver", quizver)
                 if quizver < currentDBVersion {
@@ -170,12 +164,12 @@ public class SQLiteManager {
         return nil
     }
     
-    func readQuestionsFromDB<T: BaseDataProtocol>(with type: T.Type, tableName: String? = nil, _ dbpointer: OpaquePointer) -> [T] {
+    func readQuestionsFromDB (with tableName: String? = nil, _ dbpointer: OpaquePointer) -> [[String]] {
         
         let querySql = "select * from \(tableName ?? self.tableNames.first!);"
         var sqliteStatement: OpaquePointer? = nil
-
-        var questions = [T]()
+        
+        var questions = [[String]]()
         if sqlite3_prepare_v2(dbpointer, querySql, -1, &sqliteStatement, nil) == SQLITE_OK {
             while(sqlite3_step(sqliteStatement) == SQLITE_ROW) {
                 var idx = 0
@@ -184,9 +178,7 @@ public class SQLiteManager {
                     questionData.append( String(cString: dta) )
                     idx += 1
                 }
-                if let question = T.init(fields: questionData) {
-                    questions.append(question)
-                }
+                questions.append(questionData)
             }
         } else {
             print("SQL statement could not be prepared")
@@ -195,6 +187,7 @@ public class SQLiteManager {
         sqlite3_finalize(sqliteStatement)
         return questions
     }
+
     
 }
 

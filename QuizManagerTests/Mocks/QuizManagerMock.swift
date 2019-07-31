@@ -24,7 +24,7 @@ class QuizManagerMock : QuizManagerProtocol {
     
     
     /// Current set of questions. question and answer given
-    private var questionSet : [(question: QuestionProtocol, answerGiven: Int?)]?
+    private var questionSet : [(question: Any, answerGiven: Int?)]?
     private var currentQuestion : QuestionProtocol?
     
     func getNextQFromSet<T>(with type: T.Type) -> (question: T, answers: [String])? where T : QuestionProtocol {
@@ -32,12 +32,23 @@ class QuizManagerMock : QuizManagerProtocol {
         for q in questionSet.enumerated() {
             // ignore the "temporary" answerGiven
             // TODO: consider how we will store the temporary answers
+            
+            
             if q.element.answerGiven == nil {
-                currentQuestion = q.element.question
-                let question = q.element.question
-                let answers = [question.qa, question.qb, question.qc, question.qd]
-                return (q.element.question as! T, answers)
+                if let question = q.element.question as? T {
+                    currentQuestion = question
+                    let answers = [question.qa, question.qb, question.qc, question.qd]
+                    return (question, answers)
+                }
             }
+//            if q.element.answerGiven == nil {
+//                currentQuestion = q.element.question as! T
+//                let question = q.element.question
+//                let answers = [question.qa, question.qb, question.qc, question.qd]
+//                return (q.element.question as! T, answers)
+//            }
+//            
+            
         }
         return nil
     }
@@ -47,8 +58,19 @@ class QuizManagerMock : QuizManagerProtocol {
     }
     
     func setQuestionsRandomly<T>(with type: T.Type, numberQuestions no: Int, shufflebool: Bool, shufflefunction: (([(question: Any, answerGiven: Int?)]) -> (() -> [(question: Any, answerGiven: Int?)]))?, withCompletionHandler completion: @escaping (Result<Bool, Error>) -> Void) where T : QuestionProtocol {
-        let questions : [QuestionProtocol] = [q1,q2]
-        questionSet = Array(zip(questions, Array(repeating: nil, count: questions.count)))
+//        let questions : [QuestionProtocol] = [q1,q2]
+        let questions : [[String]] = [q1,q2]
+//        questionSet = Array(zip(questions, Array(repeating: nil, count: questions.count)))
+        
+        var qs = [T]()
+        for q in questions {
+            if let question = T.init(fields: q) {
+                qs.append(question)
+            }
+        }
+        
+        questionSet =  shufflefunction!( Array( zip( qs as [Any], Array<Int?>(repeating: nil, count: questions.count ) ) ) ) ()
+        
         completion(.success( true ) )
     }
     

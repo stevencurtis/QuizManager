@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 // each quiz contains a set of anything that conforms to the question protocol (nothing!)
 
 public class Quiz<T> {

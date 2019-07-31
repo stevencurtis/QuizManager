@@ -12,5 +12,4 @@ import UIKit
 struct Constants {
     static let dbName = ""
     static let tableName = ""
-
 }

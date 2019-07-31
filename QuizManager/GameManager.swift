@@ -11,10 +11,8 @@ import Foundation
 public protocol GameManagerProtocol {
     func switchAnswerer()
     func startGame<T: QuestionProtocol>(with type: T.Type, players: Int, withCompletionHandler completion: @escaping (Result<(question: QuestionProtocol, answers: [String])?, Error>) -> Void)
-    
     func nextQ<T: QuestionProtocol>(with type: T.Type) -> T?
     func currentQ<T: QuestionProtocol>(with type: T.Type)  -> QuestionProtocol?
-    
     func rollDice(randFuncDie1: ((ClosedRange<Int>) -> Int), randFuncDie2: ((ClosedRange<Int>) -> Int)) -> (dice1: Int, dice2: Int, losePointsTurn: Bool, losePointsGame: Bool)
     func getButtonStatus() -> (ButtonStatus)
     func getScores () -> (GameScores)

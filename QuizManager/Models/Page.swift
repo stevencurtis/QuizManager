@@ -8,8 +8,6 @@
 
 import Foundation
 
-
-
 public class Page<T> {
     private let pages : [T]
     private let name : String

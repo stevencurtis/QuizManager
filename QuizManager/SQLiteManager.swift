@@ -56,7 +56,6 @@ public class SQLiteManager {
             if withdbpathfunc == nil {
                 dbPath = createDBPath(dbName)
                 dbPath = ( copyDatabaseIfNeeded(databasePath: dbPath!, dbname: dbName) )
-                
             } else {
                 dbPath = withdbpathfunc!()
             }
@@ -162,11 +161,16 @@ public class SQLiteManager {
             }
         }
         return nil
-    }
+    }    
     
-    func readQuestionsFromDB (with tableName: String? = nil, _ dbpointer: OpaquePointer) -> [[String]] {
+    func readQuestionsFromDB(with tableName: String? = nil, customSQLString: String? = nil, _ dbpointer: OpaquePointer) -> [[String]] {
+        var querySql = ""
+        if customSQLString == nil {
+            querySql = "select * from \(tableName ?? self.tableNames.first!) q, topics, dttopics where topics.topic = dttopics.topicID and q.number = topics.question;"
+        } else {
+            querySql = "select * from \(tableName ?? self.tableNames.first!);"
+        }
         
-        let querySql = "select * from \(tableName ?? self.tableNames.first!);"
         var sqliteStatement: OpaquePointer? = nil
         
         var questions = [[String]]()
@@ -181,6 +185,9 @@ public class SQLiteManager {
                 questions.append(questionData)
             }
         } else {
+            if customSQLString == nil {
+                return readQuestionsFromDB(with: tableName, customSQLString: " ", dbpointer)
+            }
             print("SQL statement could not be prepared")
         }
         

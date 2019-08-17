@@ -33,6 +33,7 @@
 		CAD97D7322A9172C005330CA /* SQLiteManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD97D7122A9172C005330CA /* SQLiteManagerTests.swift */; };
 		CAD97D7622A9173C005330CA /* Array - noshuffle.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD97D7522A9173C005330CA /* Array - noshuffle.swift */; };
 		CAD97D7822A91776005330CA /* sociologydb.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = CAD97D6722A91703005330CA /* sociologydb.sqlite */; };
+		CAE25A56230820F3008E9173 /* gcsedt.sqlite in Resources */ = {isa = PBXBuildFile; fileRef = CAE25A55230820F3008E9173 /* gcsedt.sqlite */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,6 +76,7 @@
 		CAD97D7022A9172C005330CA /* QuizManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = QuizManagerTests.swift; path = "../../QuizManager copy 2/QuizManagerTests/Mocks/QuizManagerTests.swift"; sourceTree = "<group>"; };
 		CAD97D7122A9172C005330CA /* SQLiteManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SQLiteManagerTests.swift; sourceTree = "<group>"; };
 		CAD97D7522A9173C005330CA /* Array - noshuffle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array - noshuffle.swift"; sourceTree = "<group>"; };
+		CAE25A55230820F3008E9173 /* gcsedt.sqlite */ = {isa = PBXFileReference; lastKnownFileType = file; path = gcsedt.sqlite; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -168,6 +170,7 @@
 		CAD97D6822A91706005330CA /* Others */ = {
 			isa = PBXGroup;
 			children = (
+				CAE25A55230820F3008E9173 /* gcsedt.sqlite */,
 				CAD97D6722A91703005330CA /* sociologydb.sqlite */,
 				CA9EAA0722EAB7BC00259071 /* sociologydbupdatepragma.sqlite */,
 				CAAB9ED722E95CBC0007ADFB /* computingpages.sqlite */,
@@ -304,6 +307,7 @@
 				CAAB9ED822E95CBC0007ADFB /* computingpages.sqlite in Resources */,
 				CA9EAA0822EAB7BC00259071 /* sociologydbupdatepragma.sqlite in Resources */,
 				CAD97D7822A91776005330CA /* sociologydb.sqlite in Resources */,
+				CAE25A56230820F3008E9173 /* gcsedt.sqlite in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

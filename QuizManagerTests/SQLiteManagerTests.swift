@@ -93,5 +93,34 @@ class SQLiteManagerTests: XCTestCase {
         XCTAssertEqual(sq.provideDbVersion(withdbpathfunc: v1DBPages), 1)
     }
     
+    
+    // gcsedt has separate tables for topics
+    
+    
+    public func createTestDBPathForDTTest() -> String?
+    {
+        let b = Bundle(for: type(of: self))
+        if let filepath = b.path(forResource: "gcsedt", ofType: "sqlite") {
+            return filepath
+        }
+        fatalError("Database not found")
+    }
+    
+    func testReadMultipleTables() {
+        let expectation = XCTestExpectation(description: #function)
+        let sq = SQLiteManager("gcsedt", tableName: "questions")
+        let _ = sq.openDatabase("gcsedt")
+        sq.provideQuizzes( withdbpathfunc: createTestDBPathForDTTest, withCompletionHandler: { result in
+            switch result {
+            case .failure (let error) : XCTAssertNotNil(error)
+            case .success (let data):
+                let a = data.first?[26]
+                XCTAssertEqual(a?.description, "Fibres")
+            }
+            expectation.fulfill()
+        })
+        wait(for: [expectation], timeout: 3.0)
+    }
+    
 }
 

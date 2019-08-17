@@ -272,6 +272,7 @@ public class QuizManager {
                     print ( tests )
                     if let completion = completion {
                         completion(.success( [Quiz(name: "Quiz", questions: qs)] ))
+
                     }
                 }
             })
